@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+
+{% block title %}ToDoList{% endblock title %}
+
+
+{% block style %}
+/* Styling of form  */
+#addForm {
+  display: none;
+  
+  margin: 2%;
+  border: 1px solid;
+  padding: 2%;
+  width: 400px;
+  background-color: rgb(245, 237, 237);
+  border-radius: 3%;
+  position: absolute;
+    left: 37%;
+ top: 42%;
+
+  
+
+}
+
+#addForm input {
+  outline: none;
+
+  width: 90%;
+  height: 40%;
+  border-radius: 4px;
+  border: 1px solid;
+  padding: 3%;
+  margin-bottom: 5%;
+}
+
+#addForm button {
+  padding: 3% 5%;
+  background-color: rgb(0, 98, 209);
+  color: white;
+  border: 2px solid white;
+  border-radius: 4px;
+  font-size: medium;
+}
+
+#addForm button:hover {
+  background-color: rgb(0, 80, 180);
+}
+
+#addForm button:active {
+  background-color: rgb(255, 255, 255);
+  color: rgb(0, 101, 252);
+}
+
+#addForm input:focus {
+  outline-color: rgba(0, 89, 255, 0.596);
+  outline-style: auto;
+  outline-width: 4px;
+
+
+  /* border-color: rgba(0, 60, 255, 0.507);
+  border-width: 2px; */
+
+
+}
+
+#addForm input:hover {
+  border-color: rgba(11, 59, 216, 0.507);
+  background-color: whitesmoke;
+
+}
+
+#addForm div {
+
+  width: 100%;
+}
+
+#addForm div label {
+  font-family: sans-serif;
+  font-size: smaller;
+}
+
+/* Task show styling */
+.taskTable {
+  width: auto;
+  padding: 2%;
+
+}
+#taskCont{
+           
+    position: absolute;
+    left: 30%;
+    top: 12%;
+    width: 700px;
+
+
+}
+
+.taskHead {
+  display: flex;
+  justify-content: space-between;
+  padding: 0% 5%;
+  background-color: rgb(57, 196, 255);
+  width:100%;
+
+}
+
+.taskHead h5 {
+
+  font-size: larger;
+}
+
+.taskcontent {
+  display: flex;
+  justify-content: space-between;
+  padding: 0% 5%;
+  /* background-color: rgb(57, 196, 255); */
+  width:100%;
+
+}
+
+.taskcontent>* {
+  font-size: medium;
+
+  <!-- overflow:scroll; -->
+}
+#SDesc{
+  word-wrap: break-word;
+  width:200px;
+}
+
+div .taskcontent:nth-child(even) {
+  background-color: rgba(189, 177, 161, 0.452);
+}
+
+#modalButton {
+  {% comment %} background-color: rgba(189, 177, 161, 0.452); {% endcomment %}
+  padding: 1%;
+  position: absolute;
+  left:65%;
+  top:13%; 
+  border-radius: 15%;
+  font-weight: 700;
+  border: none;
+
+  outline-style: solid;
+  outline-color: skyblue;
+  outline-width: 1px;
+
+
+}
+
+#modalButton:hover {
+  background-color: skyblue;
+  color:black;
+ 
+}
+
+#modalButton:active {
+  outline-width: 2px;
+}
+{% endblock style %}
+{% block body %}
+<div class="container ">
+  <div id="taskCont">
+     
+        <h3 style="text-align: center; font-size: large;">Task you have to do</h3>
+        <div class="taskTable">
+            <div class="taskHead">
+
+                <h5>Task </h5>
+                <h5>Deadline </h5>
+                <h5>Status </h5>
+
+
+            </div>
+            {% for task in tasks  %}
+            {% if task %}
+            <div class="taskcontent">
+              
+                <p id="SDesc">{{task.taskDesc}}</p>
+                <p style="position:relative;left: -8%;">{{task.time}}</p>
+                <input type="checkbox" name="status{{task.sno}}" class="statusCheck" id="status{{task.sno}}" data-model-pk="{{ task.sno }}">
+                
+            </div>
+            {% else %}
+            <h4>There is no task to do</h4>
+            {% endif %}
+            {% endfor %}
+            
+        </div>
+        
+
+    </div>
+</div>
+<div>
+
+    <form id="addForm" action="/addTask" method='post'>
+
+        {% csrf_token %}
+        <div>
+            <input type="text" name="tDesc" id="tDesc" placeholder="Enter task to do" required>
+        </div>
+        <div>
+            <label for="taskTime">Deadline</label>
+            <input type="datetime-local" name="taskTime" id="taskTime" required>
+        </div>
+        <button id="addTask" type="submit">
+            Add
+        </button>
+    </form>
+    <button id="modalButton">
+      Add Task
+    </button>
+</div>
+
+<script>
+    // var CheckBtn=document.getElementById("addTask");
+    // CheckBtn.onclick=function (){
+    //     var task=document.getElementById('tDesc').value;
+    //     if (task=="") {
+    //       alert('task cannot be null');
+    //       window.location.reload();
+    //     }
+    //     else{
+    //       alert('thanku');
+    //     }
+    // }
+    var btn = document.getElementById('modalButton');
+    btn.onclick = function () {
+        var modal = document.getElementById('addForm'); // Replace 'existingElement' with the actual ID of the element you want to modify
+        var tTable=document.getElementById('taskCont');
+        tTable.style.opacity='0.1';
+        if (modal) {
+            modal.style.display = 'block';
+        } else {
+            console.log("Element not found!");
+        }
+    };
+
+    window.onclick = function (event) {
+        var modal = document.getElementById('addForm'); // Replace 'existingElement' with the actual ID of the element you want to modify
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+        var tTable=document.getElementById('taskCont');
+        tTable.style.opacity='1';
+    }
+
+
+    //Javsascript for  checkbox 
+     $(document).ready(function() {
+      $('.statusCheck').click(function(event) {
+
+        var modelPk = $(this).data('modelPk');
+
+               
+        $.ajax({
+          type: "GET",
+          url: "/deleteTask/",
+          data: {'pk':modelPk},
+          headers: {
+              "X-CSRFToken": '{{ csrf_token }}'
+          }, 
+          success: function (data) {
+          alert("Task completed  !!")
+           window.location.reload(); 
+          },
+          error: function (error) {
+              console.log("Error:", error);
+          } 
+      });
+   
+       
+      });
+  }); 
+
+
+
+
+
+</script>
+
+{% endblock body %}
